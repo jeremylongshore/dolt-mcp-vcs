@@ -34,6 +34,8 @@ bd stores every issue in a version-controlled [Dolt](https://github.com/dolthub/
 
 This skill diagnoses both, applies the fixes, and routes deeper work to five bundled agents. The authoritative, source-cited mechanics live in the internals reference — Read [references/beads-dolt-internals.md](references/beads-dolt-internals.md) before reasoning about bd or Dolt mechanics; cite it, don't guess.
 
+**The fix for invisible-on-DoltHub, up front (don't stop at diagnosis):** the cause is almost always no remote, and the fix is two commands — `bd dolt remote add origin https://doltremoteapi.dolthub.com/ORG/REPO` then `bd dolt push --remote origin`. The DoltHub database must already exist (the push does NOT create it). Always carry the user all the way to these commands, not just the `bd dolt remote list` diagnostic.
+
 ## Prerequisites
 
 - bd >= 1.0.4 with a Dolt-backed workspace (bd dolt show succeeds).
