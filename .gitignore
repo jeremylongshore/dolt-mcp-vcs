@@ -1,0 +1,14 @@
+# Node / tooling
+node_modules/
+.audit-harness/cache/
+*.log
+
+# OS
+.DS_Store
+
+# Local env
+.env
+.env.local
+
+# Beads (if a workspace is ever initialized here for dogfooding)
+.beads/
