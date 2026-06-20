@@ -4,7 +4,7 @@
 # direct dependency cycles. Runs SQL via dolt-mcp-client.py.
 #
 # Usage:  dep-graph.sh                          # uses $DOLT_PORT / $DOLT_DATABASE
-#         dep-graph.sh --port 35579 --database bd_000_projects [--top 10]
+#         dep-graph.sh --port 35579 --database beads [--top 10]
 #
 # Requires: python3, dolt-mcp-server on PATH, a running bd dolt sql-server.
 set -euo pipefail

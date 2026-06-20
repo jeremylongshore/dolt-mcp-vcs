@@ -54,7 +54,7 @@ AH=…/audit-harness/bin/audit-harness.js ; JR=…/j-rig-binary-eval/packages/cl
 P=…/beads-dolt ; SKILL=$P/skills/beads-dolt
 node $AH conform $P ; node $AH scan $P                       # stage 1
 node $JR validate $SKILL/eval.yaml ; node $JR check $SKILL   # static
-export DEEPSEEK_API_KEY=…  # from intent-eval-lab/.env.sops (SOPS)
+export DEEPSEEK_API_KEY=…  # from your secret store (e.g. a SOPS-encrypted env file)
 node $JR eval $SKILL --spec $SKILL/eval.yaml --provider deepseek --models deepseek-v4-flash --db /tmp/x.db --json
 # stage 3+4: wrap each conform row via `audit-harness emit-evidence`, then intent-rollout-gate decide()
 ```

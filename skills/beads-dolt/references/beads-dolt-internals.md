@@ -1,8 +1,8 @@
 # Beads (`bd`) Dolt Backend Internals — Source-Cited Reference
 
 **Subject:** the `bd` task-tracker's Dolt storage engine, reverse-engineered from Go source.
-**Pinned to:** `bd version 1.0.4 (ce242a879)` — fork at `/home/jeremy/000-projects/99-forked/beads/` (module path `github.com/steveyegge/beads`).
-**Toolchain observed on this box:** `dolt version 1.83.1` (17 sprawled `dolt sql-server` processes at scan time), `bd 1.0.4`.
+**Pinned to:** `bd version 1.0.4 (ce242a879)` — the [beads](https://github.com/gastownhall/beads) Go source (module path `github.com/steveyegge/beads`).
+**Toolchain reference:** `bd 1.0.4` with `dolt version 1.83.1`.
 
 Every claim below is tied to a `file.go:func`/line or a doc citation. Where the source contradicts a common belief, it is called out explicitly. **This document is ground truth for plugin agents — cite it, don't paraphrase from memory.**
 
@@ -117,7 +117,7 @@ The production write path in 1.0.4 uses the **"new" pattern with a single pinned
 - Wrapped in `store.go:withRetry` (lines 427-457) with exponential backoff on retryable/serialization errors (`withRetryTx`, lines 614-626: `InitialInterval=25ms`, `MaxElapsedTime` 5s embedded / 15s server). Serialization conflicts from concurrent writers are retried rather than dropped.
 - `"nothing to commit"` is treated as benign (`isDoltNothingToCommit` → `issueops.IsNothingToCommitError`).
 
-**Conclusion (contradicts the legacy belief):** the *transaction-level* hang/drop race (the original "mode 6") is fixed in 1.0.4 — the redundant-commit pattern is gone, writes are single-connection-pinned, and serialization errors retry. The CLAUDE.md "bd ≤1.0.4 silently drops state changes on tight sequential writes" framing conflates two different things and is **stale for the SQL-transaction race**. What remains is the **JSONL-representation lag** (§3), which is a *throttle*, not a dropped DB write — and the umbrella's own docs already corrected this (the `bd_000-projects-ufc` bead was CLOSED as `mischaracterized-actual-cause-is-throttle-interval`).
+**Conclusion (contradicts the legacy belief):** the *transaction-level* hang/drop race (the original "mode 6") is fixed in 1.0.4 — the redundant-commit pattern is gone, writes are single-connection-pinned, and serialization errors retry. The CLAUDE.md "bd ≤1.0.4 silently drops state changes on tight sequential writes" framing conflates two different things and is **stale for the SQL-transaction race**. What remains is the **JSONL-representation lag** (§3), which is a *throttle*, not a dropped DB write — a point operators have since corrected in practice (the issue was reclassified as "mischaracterized — actual cause is the throttle interval").
 
 ### Why `bd export` between writes "fixes" it — and what it actually fixes
 
@@ -185,7 +185,7 @@ The decision flow (lines 84-99):
 
 ### Gitignored `.beads` interaction
 
-`export.git-add` (line 150): auto-export only `git add`s the JSONL when `export.git-add=true` AND not `no-git-ops` AND `isGitRepo()`. For a **gitignored `.beads/`** (the IEP umbrella case), `gitAddFile` would hit "paths are ignored" — but the whole point is JSONL there is a local viewer artifact, not a tracked file. The export still *writes* the file (atomic temp-then-rename, `exportToFile` lines 344-447); it just isn't staged. So on a gitignored path the only failure surface is the throttle lag, not a git error (the prior "auto-flush drops on gitignored path" framing was wrong — see CLAUDE.md note + `bd_000-projects-ufc`).
+`export.git-add` (line 150): auto-export only `git add`s the JSONL when `export.git-add=true` AND not `no-git-ops` AND `isGitRepo()`. For a **gitignored `.beads/`** (a common umbrella-workspace setup), `gitAddFile` would hit "paths are ignored" — but the whole point is JSONL there is a local viewer artifact, not a tracked file. The export still *writes* the file (atomic temp-then-rename, `exportToFile` lines 344-447); it just isn't staged. So on a gitignored path the only failure surface is the throttle lag, not a git error (the prior "auto-flush drops on gitignored path" framing was wrong).
 
 ### Safety guards (1.0.4 additions)
 

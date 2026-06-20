@@ -25,7 +25,7 @@ Before reasoning about the schema, Read the bundled reference `skills/beads-dolt
 
 ## Process
 
-1. **Find the database.** Call `mcp__dolt__list_databases` to confirm the bead database name (e.g., `bd_000_projects`); set `DOLT_DATABASE`/`DOLT_PORT` accordingly.
+1. **Find the database.** Call `mcp__dolt__list_databases` to confirm the bead database name (e.g., `beads`); set `DOLT_DATABASE`/`DOLT_PORT` accordingly.
 2. **Run the canned audit.** `bash ${CLAUDE_PLUGIN_ROOT:-.}/scripts/epic-closure-audit.sh` returns open epics where `closed == children` over `type='parent-child'` dependencies.
 3. **Ad-hoc questions.** For anything the script doesn't cover, call `mcp__dolt__query` directly. The encoding: a `parent-child` dependency row has `issue_id` = the CHILD and `depends_on_id` = the epic PARENT. Epics are `issue_type='epic'`; closed means `status='closed'`.
 4. **Prescribe closure.** For each drift candidate, recommend `bd-sync close <epic> --also-close-gh` (mirror-aware; reserve `--also-close-gh` for a cluster's last child).

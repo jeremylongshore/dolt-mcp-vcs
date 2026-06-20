@@ -5,8 +5,8 @@
 # fan-out). Runs the audit SQL through the dolt-mcp server via dolt-mcp-client.py.
 #
 # Usage:  epic-closure-audit.sh                 # uses $DOLT_PORT / $DOLT_DATABASE
-#         DOLT_PORT=35579 DOLT_DATABASE=bd_000_projects epic-closure-audit.sh
-#         epic-closure-audit.sh --port 35579 --database bd_000_projects
+#         DOLT_PORT=35579 DOLT_DATABASE=beads epic-closure-audit.sh
+#         epic-closure-audit.sh --port 35579 --database beads
 #
 # Requires: python3, dolt-mcp-server on PATH, a running bd dolt sql-server.
 # Exit: 0 ok (whether or not drift was found) · non-zero on connection/tool error.

@@ -40,7 +40,7 @@ The MCP connection is environment-overridable (defaults target the shared `bd do
 | `DOLT_HOST` | `127.0.0.1` | bd's dolt server is loopback-bound. |
 | `DOLT_PORT` | `3308` | The shared-server port. For a per-project server, get the port from `bd dolt show`. |
 | `DOLT_USER` | `root` | bd's default. |
-| `DOLT_DATABASE` | `bd_000_projects` | Your workspace's database name (see `bd dolt show`). |
+| `DOLT_DATABASE` | `beads` | Your workspace's database name (see `bd dolt show`). |
 | `DOLT_PASSWORD` | _(empty)_ | bd's server is unauthenticated by default. |
 
 ## License

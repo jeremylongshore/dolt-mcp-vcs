@@ -47,6 +47,6 @@ A short diagnosis (root cause), the exact commands to fix it, and a verification
 
 ## Edge Cases
 
-- Multi-database server: bd's data lives in a named database (e.g., `bd_000_projects`), not the empty root `dolt` database — target the right one (`bd dolt show`).
+- Multi-database server: bd's data lives in a named database (e.g., `beads`), not the empty root `dolt` database — target the right one (`bd dolt show`).
 - Diverged history ("no common ancestor"): explain `--force` implications; never force-push without flagging data-loss risk.
 - Stale CLI remote vs SQL remote: reset with `dolt remote remove`/`add` in the database dir, confirm with `dolt remote -v`.

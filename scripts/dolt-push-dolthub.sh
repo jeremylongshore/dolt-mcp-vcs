@@ -9,7 +9,7 @@
 #   --remote NAME  Dolt remote to push (default: origin).
 #
 # Cron example (every 20 min):
-#   */20 * * * * /path/to/dolt-push-dolthub.sh /home/jeremy/000-projects >> ~/.local/state/dolt-push.log 2>&1
+#   */20 * * * * /path/to/dolt-push-dolthub.sh ~/my-workspace >> ~/.local/state/dolt-push.log 2>&1
 #
 # Requires: bd >= 1.0.4 with a Dolt remote already configured
 #           (bd dolt remote add origin https://doltremoteapi.dolthub.com/ORG/REPO).

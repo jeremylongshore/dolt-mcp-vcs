@@ -14,9 +14,9 @@ Requires: python3 (stdlib only) + `dolt-mcp-server` on PATH
   (go install github.com/dolthub/dolt-mcp/mcp/cmd/dolt-mcp-server@latest)
 
 Usage:
-  dolt-mcp-client.py --port 35579 --database bd_000_projects query "SELECT COUNT(*) FROM issues"
+  dolt-mcp-client.py --port 35579 --database beads query "SELECT COUNT(*) FROM issues"
   dolt-mcp-client.py --port 35579 list_databases
-  echo "SELECT ..." | dolt-mcp-client.py --port 35579 --database bd_000_projects query -
+  echo "SELECT ..." | dolt-mcp-client.py --port 35579 --database beads query -
 
 Connection defaults come from env when flags are omitted:
   DOLT_HOST (127.0.0.1), DOLT_PORT, DOLT_USER (root), DOLT_DATABASE, DOLT_PASSWORD ('')
