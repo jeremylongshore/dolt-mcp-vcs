@@ -17,15 +17,21 @@ what ran, what passed, and what the eval *found* (including bugs in the platform
 
 ## Findings
 
-### Finding 1 — Platform: audit-harness rows are not kernel-valid `gate-result/v1` (HIGH VALUE)
+### Finding 1 — Platform: audit-harness rows are not kernel-valid `gate-result/v1` (HIGH VALUE) — ✅ FIXED ([intent-audit-harness#103](https://github.com/jeremylongshore/intent-audit-harness/pull/103), merged)
 audit-harness `conform`/`scan` emit a lighter envelope (`gate_id`, `result`, `policy_hash`,
 `input_hash`, `timestamp`, `runner`, `commit_sha`, `metadata`). The kernel `gate-result/v1`
 predicate body requires `gate_name`, `gate_version`, `gate_decision` (not `result`),
 `gate_reasons`, `coverage`, `policy_ref`, `evaluated_at`. So every emitted row fails
 `GateResultV1Schema`, and `intent-rollout-gate` correctly rejected the bundle. **The two ends
 of the convergence don't speak the same row shape yet.** This is a real integration seam in the
-platform, surfaced only by an end-to-end external-adopter run. → follow-up for audit-harness +
-kernel (align the emitted envelope with `gate-result/v1`).
+platform, surfaced only by an end-to-end external-adopter run.
+
+**Resolution:** fixed in `intent-audit-harness#103` (commit `8533a93`, merged 2026-06-20). `scripts/emit-evidence.sh`
+now builds the canonical `gate-result/v1` body (`result`→`gate_decision`, `timestamp`→`evaluated_at`; synthesizes
+`gate_name`/`gate_version`/`coverage`/`policy_ref`/`gate_reasons`), bringing the CLI path to parity with the
+kernel-valid `ci/emit-evidence.ts` self-gate. A new full-kernel post-emit fixture + repointed regression mean the
+suite now genuinely gates kernel-validity (it was masking the drift against a stale partial fixture). After the
+fix: `conform | emit-evidence` → `GateResultV1Schema` 9/9 valid → rollout-gate **block → allow**.
 
 ### Finding 2 — Plugin: the skill front-loads diagnosis, not the fix (VALID)
 For the canonical "my beads aren't in DoltHub" prompt, the model's one-shot response ran the
