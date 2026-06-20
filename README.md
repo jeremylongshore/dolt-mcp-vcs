@@ -43,6 +43,10 @@ The MCP connection is environment-overridable (defaults target the shared `bd do
 | `DOLT_DATABASE` | `beads` | Your workspace's database name (see `bd dolt show`). |
 | `DOLT_PASSWORD` | _(empty)_ | bd's server is unauthenticated by default. |
 
+## How it was evaluated
+
+This plugin was run end-to-end through the [Intent Eval Platform](https://github.com/jeremylongshore/intent-eval-lab) — deterministic gates → behavioral eval (real model) → kernel-validated Evidence Bundle → ship/no-ship decision. The full evidence and the ship/no-ship decision are recorded in [`DOGFOOD.md`](./DOGFOOD.md); the methodology write-up is the platform's [case study](https://github.com/jeremylongshore/intent-eval-lab/blob/main/000-docs/088-RR-LAND-beads-dolt-external-adopter-convergence-proof-2026-06-20.md). (The eval even surfaced — and we fixed — a bug in the platform's own evidence emitter.)
+
 ## License
 
 Apache-2.0. See [LICENSE](./LICENSE).
