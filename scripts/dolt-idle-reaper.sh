@@ -74,12 +74,19 @@ ws_root() {
   esac
 }
 
+# Portable mtime (epoch seconds): GNU stat, then BSD/macOS stat, then date -r.
+# Falls back to 0 only when all three fail (missing file / unsupported toolchain),
+# which callers treat as "no activity timestamp available."
+mtime() {
+  stat -c %Y "$1" 2>/dev/null || stat -f %m "$1" 2>/dev/null || date -r "$1" +%s 2>/dev/null || echo 0
+}
+
 # Most-recent activity timestamp (epoch) across a workspace's .beads activity files.
 latest_activity() {
   local bd="$1/.beads" newest=0 m
   for f in last-touched issues.jsonl dolt-server.log interactions.jsonl; do
     [ -f "$bd/$f" ] || continue
-    m=$(stat -c %Y "$bd/$f" 2>/dev/null || echo 0)
+    m=$(mtime "$bd/$f")
     [ "$m" -gt "$newest" ] && newest=$m
   done
   echo "$newest"
@@ -131,8 +138,9 @@ for pid in $(pgrep -f 'dolt sql-server' 2>/dev/null); do
   short=$(echo "$ws" | sed "s#$HOME/##")
   act=$(latest_activity "$ws")
   if [ "$act" -eq 0 ]; then
-    # No activity files found — fall back to the process start time via /proc.
-    act=$(stat -c %Y "/proc/$pid" 2>/dev/null || echo "$now")
+    # No activity files found — fall back to the process start time via /proc
+    # (Linux-only path; on other platforms mtime returns 0 and we use now).
+    act=$(mtime "/proc/$pid"); [ "$act" -eq 0 ] && act=$now
   fi
   age_min=$(( (now - act) / 60 ))
   if [ "$(( now - act ))" -lt "$idle_secs" ]; then
