@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "dolt": {
+    "beads-dolt": {
       "command": "dolt-mcp-server",
       "args": [
         "--stdio",
