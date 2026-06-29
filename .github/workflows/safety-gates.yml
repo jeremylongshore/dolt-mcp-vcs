@@ -1,0 +1,32 @@
+name: safety-gates
+
+# Phase 0 enforcement that travels with the code: the mutation-verb classifier,
+# the §10 union safety gate (MCP + Bash), the fail-closed creds-ref resolver, the
+# schema-profile seam, and the descriptor validator rule all run on every PR.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Python suites (classifier · creds-ref · profile seam)
+        run: python3 -m unittest tests.test_sql_classifier tests.test_resolve_creds_ref tests.test_profile_sql -v
+
+      - name: "§10 union safety gate (MCP + Bash)"
+        run: bash scripts/check-agent-safety.sh
+
+      - name: Descriptor validator rule (committed descriptor is valid)
+        run: python3 scripts/descriptor-to-mcp-args.py --descriptor connection.descriptor.json > /dev/null
+
+      - name: shellcheck (warning severity)
+        run: shellcheck --severity=warning scripts/*.sh
