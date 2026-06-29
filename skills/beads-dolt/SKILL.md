@@ -42,7 +42,7 @@ This skill diagnoses both, applies the fixes, and routes deeper work to five bun
 - For DoltHub: a dolt creds keypair authorized on your DoltHub account, and the **DoltHub database must already exist** (create it in the DoltHub UI — the push does **not** auto-create it).
 - For the SQL-capable agents: the dolt-mcp-server binary on PATH (go install github.com/dolthub/dolt-mcp/mcp/cmd/dolt-mcp-server@latest). The plugin's .mcp.json wires it.
 
-## Authentication
+### Authentication
 
 DoltHub pushes authenticate with a dolt creds keypair tied to your account (run dolt login once to create and authorize it), or with the DOLT_REMOTE_USER and DOLT_REMOTE_PASSWORD environment variables. The dolt-mcp connection uses DOLT_USER and DOLT_PASSWORD (bd's local server is unauthenticated by default — user root, empty password).
 
