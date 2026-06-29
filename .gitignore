@@ -3,6 +3,11 @@ node_modules/
 .audit-harness/cache/
 *.log
 
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
 # OS
 .DS_Store
 
