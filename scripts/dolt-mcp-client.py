@@ -2,7 +2,7 @@
 """
 dolt-mcp-client.py — minimal, robust stdio client for the dolthub/dolt-mcp server.
 
-The reusable foundation the beads-dolt agents/scripts use to run SQL against a
+The reusable foundation the dolt-mcp-vcs agents/scripts use to run SQL against a
 bd Dolt server *through the MCP* (not by shelling `dolt` directly), so the path
 exercised in production is the same one the plugin ships.
 
