@@ -1,6 +1,8 @@
-# Dogfood: evaluating `beads-dolt` with the Intent Eval Platform
+# Dogfood: evaluating `dolt-mcp-vcs` with the Intent Eval Platform
 
-`beads-dolt` was run end-to-end through the Intent Eval Platform's own toolchain —
+> This run was recorded when the plugin was named `beads-dolt` (now `dolt-mcp-vcs`); the findings stand.
+
+`dolt-mcp-vcs` (then `beads-dolt`) was run end-to-end through the Intent Eval Platform's own toolchain —
 the platform's first external-adopter convergence run. This is the honest record:
 what ran, what passed, and what the eval *found* (including bugs in the platform itself).
 
@@ -51,7 +53,7 @@ count. → `eval.yaml` criteria must be globally applicable, or the matrix noise
 
 ```bash
 AH=…/audit-harness/bin/audit-harness.js ; JR=…/j-rig-binary-eval/packages/cli/dist/index.js
-P=…/beads-dolt ; SKILL=$P/skills/beads-dolt
+P=…/dolt-mcp-vcs ; SKILL=$P/skills/dolt-mcp-vcs
 node $AH conform $P ; node $AH scan $P                       # stage 1
 node $JR validate $SKILL/eval.yaml ; node $JR check $SKILL   # static
 export DEEPSEEK_API_KEY=…  # from your secret store (e.g. a SOPS-encrypted env file)

@@ -1,5 +1,5 @@
 spec_version: "1.0"
-skill_name: beads-dolt
+skill_name: dolt-mcp-vcs
 # The mutation-safety invariant gate (blueprint §3 / blocker B2). This is SEPARATE
 # from the beads regression eval (eval.yaml) on purpose: eval.yaml is the
 # strangler-fig green gate that must stay untouched (blocker B3), while this file

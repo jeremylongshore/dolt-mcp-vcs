@@ -6,7 +6,7 @@ both are treated as **untrusted input** — live introspection always wins over 
 stored value, and every name/secret is validated before use.
 
 This file is a spec, not a behavioral snapshot. The installed binary + live schema
-are still the authority (see `beads-dolt-internals.md`).
+are still the authority (see `dolt-internals.md`).
 
 ---
 
