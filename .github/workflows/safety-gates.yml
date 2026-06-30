@@ -19,8 +19,15 @@ jobs:
         with:
           python-version: "3.12"
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
       - name: Python suites (classifier · creds-ref · profile seam)
         run: python3 -m unittest tests.test_sql_classifier tests.test_resolve_creds_ref tests.test_profile_sql -v
+
+      - name: dolt-watch logic + sanitizer suite
+        run: node --check scripts/dolt-watch.mjs && node --test tests/dolt-watch.test.mjs
 
       - name: "§10 union safety gate (MCP + Bash)"
         run: bash scripts/check-agent-safety.sh
