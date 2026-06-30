@@ -1,0 +1,87 @@
+{
+  "$comment": "dolt-watch baseline (the committed last-seen snapshot the radar diffs against). HARDENED per engineering-panel blocker B5: dolt-watch parses UNTRUSTED upstream text (release names, tool names) and then has write authority (opens issues, opens a state-update PR). Every value here carries a provenance stamp (verifiedAt ISO timestamp + evidenceUrl) so a maturity/version promotion in a PR diff must trace back to a matching run artifact, never a bare field edit. MINIMAL per plan decision 5: exactly ONE watched surface — the dolt-mcp release tag + its tool-list. Do NOT add a blog feed, status-page scrape, or any non-dolt-mcp repo here. A new watched surface lands ONLY when an adapter for that product exists.",
+  "schemaVersion": "1.0.0",
+  "sourcesOfRecord": {
+    "dolt-mcp-latest-tag": "https://proxy.golang.org/github.com/dolthub/dolt-mcp/@latest",
+    "dolt-mcp-tag-list": "https://proxy.golang.org/github.com/dolthub/dolt-mcp/@v/list",
+    "dolt-mcp-toolset-registry": "https://raw.githubusercontent.com/dolthub/dolt-mcp/v0.3.6/mcp/pkg/toolsets/primitive_v1.go"
+  },
+  "watched": {
+    "dolt-mcp": {
+      "repo": "dolthub/dolt-mcp",
+      "version": "v0.3.6",
+      "tools": [
+        "list_databases",
+        "list_dolt_branches",
+        "create_database",
+        "drop_database",
+        "show_tables",
+        "show_processlist",
+        "show_create_table",
+        "describe_table",
+        "create_table",
+        "drop_table",
+        "alter_table",
+        "query",
+        "exec",
+        "kill_process",
+        "select_active_branch",
+        "select_version",
+        "create_dolt_branch_from_head",
+        "create_dolt_branch",
+        "move_dolt_branch",
+        "delete_dolt_branch",
+        "stage_table_for_dolt_commit",
+        "stage_all_tables_for_dolt_commit",
+        "unstage_table",
+        "unstage_all_tables",
+        "create_dolt_commit",
+        "dolt_reset_soft",
+        "dolt_reset_hard",
+        "list_dolt_commits",
+        "list_dolt_diff_changes_in_working_set",
+        "list_dolt_diff_changes_by_table_name",
+        "list_dolt_diff_changes_in_date_range",
+        "get_dolt_merge_status",
+        "merge_dolt_branch",
+        "merge_dolt_branch_no_ff",
+        "list_dolt_remotes",
+        "add_dolt_remote",
+        "remove_dolt_remote",
+        "clone_database",
+        "dolt_fetch_branch",
+        "dolt_fetch_all_branches",
+        "dolt_push_branch",
+        "dolt_pull_branch",
+        "run_dolt_tests",
+        "add_dolt_test",
+        "remove_dolt_test"
+      ],
+      "toolsNote": "45-tool baseline transcribed from the v0.3.6 primitive_v1 toolset registry (mcp/pkg/toolsets/primitive_v1.go), in registration order. The names are the registered MCP tool strings (e.g. CreateDoltCommitToolName = \"create_dolt_commit\"); 'merge_dolt_branch_no_ff' is the one irregular name (constant MergeDoltBranchNoFastForwardToolName). The README says '~40 tools' loosely; the registry is authoritative. fetchCurrentState() re-fetches this list live each run and diffs against this baseline — a name added/removed here is what fires a tool-added / tool-removed signal.",
+      "evidenceUrl": "https://raw.githubusercontent.com/dolthub/dolt-mcp/v0.3.6/mcp/pkg/toolsets/primitive_v1.go",
+      "verifiedAt": "2026-06-30T01:41:28Z"
+    }
+  },
+  "maturities": {
+    "dolt": {
+      "value": "ga",
+      "evidenceUrl": "https://github.com/dolthub/dolt",
+      "verifiedAt": "2026-06-30T01:41:28Z"
+    },
+    "doltgres": {
+      "value": "ga",
+      "evidenceUrl": "https://github.com/dolthub/doltgresql",
+      "verifiedAt": "2026-06-30T01:41:28Z"
+    },
+    "doltlite": {
+      "value": "alpha",
+      "evidenceUrl": "https://github.com/dolthub/dolt",
+      "verifiedAt": "2026-06-30T01:41:28Z"
+    },
+    "dumbo": {
+      "value": "experimental",
+      "evidenceUrl": "https://github.com/dolthub/dolt",
+      "verifiedAt": "2026-06-30T01:41:28Z"
+    }
+  }
+}

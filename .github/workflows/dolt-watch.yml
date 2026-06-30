@@ -1,0 +1,180 @@
+name: dolt-watch
+
+# Upstream radar for the dolt-mcp-vcs plugin. Watches exactly ONE surface —
+# the dolt-mcp release tag + its tool-list (plan decision 5: MINIMAL) — and on
+# a delta opens GitHub issues + proposes a state.json update via PR.
+#
+# SECURITY (engineering-panel blocker B5): dolt-watch parses UNTRUSTED upstream
+# text and has write authority, so permissions are LEAST-PRIVILEGE. The
+# top-level grant is read-only; each job/step grants ONLY the extra scope it
+# needs. The state-update PR is guarded by a gitleaks scan.
+
+on:
+  schedule:
+    # Weekly, Mondays 06:17 UTC (off the hour to avoid the cron stampede).
+    - cron: '17 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'check = diff only, never opens issues / never writes state (smoke test); live = full run'
+        required: false
+        default: check
+        type: choice
+        options:
+          - check
+          - live
+
+# Default least privilege for the whole workflow: read the repo, nothing else.
+permissions:
+  contents: read
+
+concurrency:
+  group: dolt-watch
+  cancel-in-progress: false
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Job 1: diff + (on a live run) open issues. Grants ONLY issues:write on top
+  # of the read-only default. It does NOT push or open PRs.
+  # ---------------------------------------------------------------------------
+  watch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # read the committed baseline + script
+      issues: write # the only write scope this job needs
+    outputs:
+      state_changed: ${{ steps.run.outputs.state_changed }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Resolve run mode
+        id: mode
+        env:
+          # workflow_dispatch input, or empty on the scheduled run.
+          DISPATCH_MODE: ${{ github.event.inputs.mode }}
+        run: |
+          # Scheduled runs are always live; manual runs default to the safe
+          # 'check' smoke unless the operator explicitly selects 'live'.
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "flag=" >> "$GITHUB_OUTPUT"
+          elif [ "$DISPATCH_MODE" = "live" ]; then
+            echo "flag=" >> "$GITHUB_OUTPUT"
+          else
+            echo "flag=--check" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run dolt-watch
+        id: run
+        env:
+          # GITHUB_TOKEN is the workflow token, scoped to this job's permissions
+          # block (contents:read + issues:write) — it CANNOT push or open PRs.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          DOLT_WATCH_MAX_ISSUES: '5'
+        run: |
+          set -euo pipefail
+          node scripts/dolt-watch.mjs ${{ steps.mode.outputs.flag }}
+          # Report whether the baseline was rewritten (live runs only).
+          if ! git diff --quiet -- dolt-watch/state.json; then
+            echo "state_changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "state_changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload refreshed baseline artifact
+        if: steps.run.outputs.state_changed == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dolt-watch-state
+          path: dolt-watch/state.json
+          retention-days: 14
+
+  # ---------------------------------------------------------------------------
+  # Job 2: open the state-update PR. Runs ONLY when the baseline changed on a
+  # live run. Grants contents:write + pull-requests:write — and NOTHING ELSE
+  # (no issues:write here). A gitleaks scan gates the PR (B5).
+  # ---------------------------------------------------------------------------
+  state-pr:
+    needs: watch
+    if: needs.watch.outputs.state_changed == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # to push the branch
+      pull-requests: write # to open the PR
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download refreshed baseline
+        uses: actions/download-artifact@v4
+        with:
+          name: dolt-watch-state
+          path: dolt-watch/
+
+      - name: gitleaks scan (guard the state-update PR)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          # No org license needed for a public repo; scans the working tree.
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: 'false'
+
+      - name: Open state-update PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          # FIXED branch name (NOT run-ID-unique). A second sequential run that
+          # detects the same deltas before the first PR merges must NOT open a
+          # duplicate PR. A fixed branch + --force-with-lease coalesces multiple
+          # pending refreshes into ONE branch / ONE PR; the open-PR guard below
+          # short-circuits before re-pushing when a PR already exists.
+          BRANCH="dolt-watch/pending-state-update"
+          PR_TITLE="chore(dolt-watch): refresh upstream baseline"
+
+          git config user.name "dolt-watch[bot]"
+          git config user.email "dolt-watch@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add dolt-watch/state.json
+          # Nothing staged means the artifact matched HEAD — exit clean.
+          if git diff --cached --quiet; then
+            echo "No state change to commit; skipping PR."
+            exit 0
+          fi
+          git commit -m "chore(dolt-watch): refresh upstream baseline (automated)"
+
+          # Dedupe guard: if an open state-update PR already exists, update its
+          # branch in place (force-with-lease) and do NOT open a second PR.
+          EXISTING="$(gh pr list \
+            --state open \
+            --search "${PR_TITLE} in:title" \
+            --json number,title \
+            --jq "[.[] | select(.title == \"${PR_TITLE}\")] | .[0].number // empty")"
+          if [ -n "$EXISTING" ]; then
+            echo "Open state-update PR #${EXISTING} already exists — updating its branch in place, not opening a second PR."
+            git push --force-with-lease origin "$BRANCH"
+            exit 0
+          fi
+
+          # No open PR yet: push (force-with-lease in case a stale branch lingers
+          # from a previous, already-merged/closed cycle) and open the PR.
+          git push --force-with-lease --set-upstream origin "$BRANCH"
+          gh pr create \
+            --base main \
+            --head "$BRANCH" \
+            --title "$PR_TITLE" \
+            --body "$(printf '%s\n' \
+              'Automated baseline refresh from the dolt-watch radar.' \
+              '' \
+              'The refreshed dolt-watch/state.json carries re-stamped provenance' \
+              '(verifiedAt + evidenceUrl) per the provenance rule. Review the diff:' \
+              'a maturity/version promotion must trace to this run, not a bare edit.' \
+              '' \
+              'Companion issues (if any) were opened by the watch job with the' \
+              'SIGNAL -> ACTION classification and a manual reverse-mirror TODO.' \
+              '' \
+              'Guarded by a gitleaks scan in this workflow before PR creation.')"
