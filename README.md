@@ -23,13 +23,17 @@ This plugin builds on, and credits, two open-source projects:
 ## Prerequisites
 
 - [`bd`](https://github.com/gastownhall/beads) ≥ 1.0.4 with a Dolt-backed workspace.
-- The Dolt MCP server binary on `PATH`. Install it one of these ways:
+- The Dolt MCP server binary on `PATH`, **pinned** (the plugin's correctness rests on
+  this binary, so it is version-pinned — never `@latest`). Install it one of these ways:
   ```bash
-  go install github.com/dolthub/dolt-mcp/mcp/cmd/dolt-mcp-server@latest   # native (Go)
+  go install github.com/dolthub/dolt-mcp/mcp/cmd/dolt-mcp-server@v0.3.6   # native (Go)
   # or
-  docker pull dolthub/dolt-mcp:latest                                      # container
-  # or grab a release binary from https://github.com/dolthub/dolt-mcp/releases
+  docker pull dolthub/dolt-mcp:v0.3.6                                      # container
+  # or grab the v0.3.6 release binary from https://github.com/dolthub/dolt-mcp/releases
   ```
+  Pinned module `github.com/dolthub/dolt-mcp v0.3.6` verifies against the Go checksum
+  database as `h1:uwjh1zf0er51VBT6uY3tI7JLj5pYxWyk9uB6CYQOhfU=`. A version bump is
+  proposed by the `dolt-watch` routine and reviewed — it is never auto-trusted.
 
 ## Configuration
 

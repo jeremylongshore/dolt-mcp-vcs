@@ -10,7 +10,7 @@ description: |
   taming dolt server sprawl, auditing bead epics, mapping bead dependencies, or
   recovering from a bd or Dolt incident. Trigger with "/beads-dolt", "my beads
   aren't showing in DoltHub", "push beads to dolthub", or "audit my bead epics".
-allowed-tools: "Read, Task, Bash(bd:*), Bash(dolt:*), Bash(curl:*)"
+allowed-tools: "Read, Task, Bash(bd dolt show:*), Bash(bd dolt remote list:*), Bash(bd config get:*), Bash(curl:*)"
 version: 0.1.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: Apache-2.0
@@ -40,7 +40,7 @@ This skill diagnoses both, applies the fixes, and routes deeper work to five bun
 
 - bd >= 1.0.4 with a Dolt-backed workspace (bd dolt show succeeds).
 - For DoltHub: a dolt creds keypair authorized on your DoltHub account, and the **DoltHub database must already exist** (create it in the DoltHub UI — the push does **not** auto-create it).
-- For the SQL-capable agents: the dolt-mcp-server binary on PATH (go install github.com/dolthub/dolt-mcp/mcp/cmd/dolt-mcp-server@latest). The plugin's .mcp.json wires it.
+- For the SQL-capable agents: the dolt-mcp-server binary on PATH, **pinned** (go install github.com/dolthub/dolt-mcp/mcp/cmd/dolt-mcp-server@v0.3.6 — never @latest; the plugin's correctness rests on this binary). The plugin's .mcp.json wires it.
 
 ### Authentication
 
